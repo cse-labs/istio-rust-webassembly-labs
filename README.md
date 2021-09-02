@@ -16,6 +16,23 @@ We have over 180 attendees registered
 - You will have access to the repo after the event and can experiment - we LOVE PRs!
 - Have fun!
 
+## Create a Kubernetes Cluster
+
+- Create the inner-loop Kubernetes dev cluster using k3d
+  - This takes a couple of minutes to run - we will explain the details as we go
+
+   ```bash
+
+   make create
+
+   # you may occasionally get a make error due to the wait for pods
+   # you can safely ignore this error
+
+   # check the pods
+   kubectl get pods
+
+   ```
+
 ## Learning Objectives
 
 > Note that the Istio WebAssembly model is still very immature so expect a few bumps in the road as we learn together.
@@ -26,7 +43,7 @@ We have over 180 attendees registered
 - Understand the Istio WebAssembly deployment model
 - Deploy and test in Kubernetes using an Istio sidecar
 
-This hands-on lab is open to members of the WW Azure Technical Community. To join, please visit: https://aka.ms/joinwwazcom.
+This hands-on lab is open to members of the WW Azure Technical Community. To join, please visit: <https://aka.ms/joinwwazcom>
 
 ## Request Flow
 
@@ -34,34 +51,12 @@ This hands-on lab is open to members of the WW Azure Technical Community. To joi
 
 ![Request Flow](images/flow.png)
 
-## Links
-
-- Istio WebAssembly Docs - <https://istio.io/latest/docs/concepts/wasm/>
-- Building Envoy filters with Rust and WebAssembly - <https://github.com/proxy-wasm/proxy-wasm-rust-sdk>
-- OIDC Sample <https://docs.eupraxia.io/docs/how-to-guides/deploy-rust-based-envoy-filter/#building-of-the-http-filter>
-- Unit testing with `wasm-bindgen-test` - <https://rustwasm.github.io/docs/wasm-bindgen/wasm-bindgen-test/index.html>
-
 ## Errors
 
 - `cargo test --target wasm32-unknown-unknown` is currently failing
   - upstream bug in proxy_wasm::*
 
-## Let's Hack
-
-### Create a Kubernetes Cluster
-
-- Create the inner-loop Kubernetes dev cluster using k3d
-
-   ```bash
-
-   make create
-
-   # you may occasionally get a make error due to the wait for pods
-   # you can safely ignore this error
-
-   ```
-
-### Verify the setup
+## Verify the setup
 
 ```bash
 
@@ -89,7 +84,7 @@ make create
 
 ```
 
-### Lab 1
+## Lab 1
 
 - Lab 1 deploys a simple WebAssembly that adds a header to every request
 
@@ -115,7 +110,7 @@ make create
 
   ```
 
-### Lab 2
+## Lab 2
 
 - Lab 2 reads the header from the filter config in `deploy/filter.yaml`
 
@@ -141,7 +136,7 @@ make create
 
   ```
 
-### Lab 3
+## Lab 3
 
 - Lab 3 only applies the filter to the `/healthz` endpoint
 
@@ -174,7 +169,7 @@ make create
 
   ```
 
-### Lab 4
+## Lab 4
 
 - Lab 4 reads the header from the `burst service` and dynamically sets the header on `/healthz`
 
@@ -209,19 +204,26 @@ make create
 
   ```
 
-### Engineering Docs
+## Links
+
+- Istio WebAssembly Docs - <https://istio.io/latest/docs/concepts/wasm/>
+- Building Envoy filters with Rust and WebAssembly - <https://github.com/proxy-wasm/proxy-wasm-rust-sdk>
+- OIDC Sample <https://docs.eupraxia.io/docs/how-to-guides/deploy-rust-based-envoy-filter/#building-of-the-http-filter>
+- Unit testing with `wasm-bindgen-test` - <https://rustwasm.github.io/docs/wasm-bindgen/wasm-bindgen-test/index.html>
+
+## Engineering Docs
 
 - Team Working [Agreement](.github/WorkingAgreement.md)
 - Team [Engineering Fundamentals Checklist](.github/EngineeringFundChecklist.md)
 - CSE Engineering Fundamentals [Playbook](https://github.com/Microsoft/code-with-engineering-playbook)
 
-### How to file issues and get help  
+## How to file issues and get help  
 
 This project uses GitHub Discussions to track bugs and feature requests. Please search the existing issues before filing new issues to avoid duplicates. For new issues, file your bug or feature request as a new issue.
 
 For help and questions about using this project, please post your issue to the GitHub Discusson in the repo.
 
-### Contributing
+## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit <https://cla.opensource.microsoft.com>
 
@@ -229,7 +231,7 @@ When you submit a pull request, a CLA bot will automatically determine whether y
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-### Trademarks
+## Trademarks
 
 This project may contain trademarks or logos for projects, products, or services.
 
