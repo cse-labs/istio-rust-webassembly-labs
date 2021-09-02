@@ -1,0 +1,72 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: burst-wasm
+  namespace: default
+spec:
+  workloadSelector:
+    labels:
+      app: ngsa
+  configPatches:
+  # The patch adds the WebAssembly to the listener/http connection manager
+  - applyTo: HTTP_FILTER
+    match:
+      context: SIDECAR_INBOUND
+      listener:
+        filterChain:
+          filter:
+            name: "envoy.filters.network.http_connection_manager"
+            subFilter:
+              name: "envoy.filters.http.router"
+    patch:
+     # the patch adds the WebAssembly to the pipeline
+     operation: INSERT_BEFORE 
+     value:
+      name: burst-wasm-extension
+      typed_config:
+       "@type": type.googleapis.com/envoy.extensions.filters.http.wasm.v3.Wasm
+       config:
+        root_id: burst-wasm-root-id
+        vm_config:
+         vm_id: burst-wasm-vm-id
+         runtime: envoy.wasm.runtime.v8
+         allow_precompiled: true
+         code:
+          local:
+           filename: /var/local/lib/wasm-filters/burst_header.wasm
+        configuration:
+         "@type": "type.googleapis.com/google.protobuf.StringValue"
+         value: |
+          { 
+            "service_cluster": "burstcluster",
+            "service_authority": "burst",
+            "service_path": "/burstmetrics",
+            "path": "/healthz",
+            "burst_header": "Hello from WebAssembly!",
+            "cache_seconds": 3,
+            "namespace": "default",
+            "deployment": "ngsa"
+          }               
+
+  # The  patch adds the cluster that is referenced by the WebAssembly
+  - applyTo: CLUSTER
+    match:
+      context: SIDECAR_OUTBOUND
+    patch:
+      operation: ADD
+      value:
+        name: "burstcluster"
+        type: LOGICAL_DNS
+        dns_lookup_family: V4_ONLY
+        connect_timeout: 0.5s
+        lb_policy: ROUND_ROBIN
+        load_assignment:
+          cluster_name: burstcluster
+          endpoints:
+          - lb_endpoints:
+            - endpoint:
+                address:
+                  socket_address:
+                    protocol: TCP
+                    address: burst
+                    port_value: 8080

@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ngsa
+  labels:
+    account: ngsa
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ngsa
+  labels:
+    app: ngsa
+    service: ngsa
+spec:
+  type: NodePort
+  ports:
+  - port: 8080 
+    name: http
+    nodePort: 30080
+  selector:
+    app: ngsa
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ngsa
+  labels:
+    app: ngsa
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ngsa
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: ngsa
+        version: v1
+    spec:
+      serviceAccountName: ngsa
+      containers:
+      - name: ngsa
+        image: ghcr.io/retaildevcrews/ngsa-app:beta
+        resources:
+          limits:
+            cpu: "500m"
+        args:
+          - --in-memory
+          - --prometheus
+          - --log-level
+          - Warning
+          - --request-log-level
+          - Information
+          - --zone
+          - dev
+          - --region
+          - dev
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080 
+        securityContext:
+          runAsUser: 1000

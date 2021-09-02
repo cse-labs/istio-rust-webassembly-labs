@@ -1,0 +1,112 @@
+name: Build NGSA-App-PR
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+    paths:
+      - 'Dockerfile'
+      - '*.csproj'
+      - '**.cs'
+      - '.github/workflows/ngsa_pr.yaml'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-20.04
+    env:
+      DOCKER_REPO: ghcr.io/retaildevcrews/ngsa-app
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Login to Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ secrets.GHCR_ID }}
+        password: ${{ secrets.GHCR_PAT }}
+
+    - name: Docker Build
+      run: |
+        docker build . --progress auto -t image
+
+    - name: Docker Run and Test - In-Memory
+      run: |
+           
+            docker run --rm -d --name ngsacsmem -p 8080:8080 image --in-memory
+
+            echo "Waiting for web server to start ..."
+        
+            wait_time=10        
+            sleep $wait_time
+
+            # wait up to 30 seconds for web server to start
+            while true
+            do
+                if curl localhost:8080/version ; then
+                    echo -e "\n web server is running"
+                    break
+                fi
+                if [ $wait_time -gt 30 ] ; then
+                  echo -e "\n timeout waiting for web server to start"
+                  exit 1
+                fi
+                
+                sleep 1
+                ((wait_time=wait_time+1))
+            done
+
+            echo "Running In-Memory benchmark and baseline"
+            docker run --rm --network=host ghcr.io/retaildevcrews/ngsa-lr:beta -s "http://localhost:8080" --max-errors 1 -f benchmark.json baseline.json
+    
+    - name: Set Secrets
+      run: |
+            mkdir -p /tmp/secrets
+            echo -n ${{ secrets.NGSA_PRE_COSMOS_RO_KEY}} >| /tmp/secrets/CosmosKey
+            echo -n ${{ secrets.NGSA_PRE_COSMOS_URL }} >| /tmp/secrets/CosmosUrl
+            echo -n 'movies' >| /tmp/secrets/CosmosCollection
+            echo -n 'imdb' >| /tmp/secrets/CosmosDatabase
+
+    - name: Docker Run and Test - Cosmos
+      run: |
+           
+            docker run --rm -d --name ngsacscosmos -p 8081:8080 -v /tmp/secrets:/app/secrets:ro image --no-cache
+
+            echo "Waiting for web server to start ..."
+        
+            wait_time=10        
+            sleep $wait_time
+
+            # wait up to 30 seconds for web server to start
+            while true
+            do
+                if curl localhost:8081/version ; then
+                    echo -e "\n web server is running"
+                    break
+                fi
+                if [ $wait_time -gt 30 ] ; then
+                  echo -e "\n timeout waiting for web server to start"
+                  exit 1
+                fi
+                
+                sleep 1
+                ((wait_time=wait_time+1))
+            done
+
+            echo "Running Cosmos benchmark and baseline"
+            docker run --rm --network=host ghcr.io/retaildevcrews/ngsa-lr:beta -s "http://localhost:8081" --max-errors 1 -f benchmark.json baseline.json
+   
+    - name: Delete Secrets
+      run: |
+            rm -rf /tmp/secrets    
+    
+    - name: Docker Tag and Push
+      run: |
+
+        # tag the repo with :dev
+        docker tag image $DOCKER_REPO:dev
+
+        # Push to the repo
+        docker push -a $DOCKER_REPO

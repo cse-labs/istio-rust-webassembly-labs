@@ -1,0 +1,93 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: burst
+  labels:
+    app: burst
+    service: burst
+spec:
+  type: NodePort
+  ports:
+  - port: 8080 
+    name: http
+    nodePort: 30081
+  selector:
+    app: burst
+
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: burst
+  labels:
+    account: burst
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  namespace: default
+  name: burst-role
+rules:
+- apiGroups: [""]
+  resources: ["*"]
+  verbs:
+  - list
+  - get
+- apiGroups:
+  - autoscaling
+  - "*"
+  resources:
+  - "*"
+  verbs:
+  - list
+  - get
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  namespace: default
+  name: burst-rolebind
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: burst-role
+subjects:
+- kind: ServiceAccount
+  name: burst
+  namespace: default
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: burst
+  labels:
+    app: burst
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: burst
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: burst
+        version: v1
+    spec:
+      serviceAccountName: burst
+      containers:
+      - name: burst
+        image: k3d-registry.localhost:5000/burst:local
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080 
+        securityContext:
+          runAsUser: 1000
