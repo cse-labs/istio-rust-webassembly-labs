@@ -1,0 +1,40 @@
+{
+	"name": "wasm-lab",
+	"remoteUser": "vscode",
+	"overrideCommand": false,
+	"forwardPorts": [],
+
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+
+	"runArgs": [
+		"--init",
+		"--privileged"
+	],
+
+	"hostRequirements": {
+		"cpus": 4
+	},
+
+	// Set container specific settings
+	"settings": {
+		"terminal.integrated.defaultProfile.linux": "zsh"
+	},
+
+	// Install extensions
+	"extensions": [
+		"davidanson.vscode-markdownlint",
+		"gruntfuggly.todo-tree",
+		"ms-azuretools.vscode-docker",
+		"mutantdino.resourcemonitor",
+		"rust-lang.rust",
+		"vadimcn.vscode-lldb",
+		"humao.rest-client",
+		"serayuzgur.crates"
+	],
+
+	// Run Bash scripts
+	"onCreateCommand": "/bin/bash ./.devcontainer/on-create.sh",
+	"postCreateCommand": "/bin/bash ./.devcontainer/post-create.sh"
+}
