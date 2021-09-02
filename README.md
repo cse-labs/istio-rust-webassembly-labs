@@ -4,6 +4,7 @@
 
 Welcome to the Hands-on Labs for building, deploying and testing an Envoy WebAssembly built in Rust running in an Istio sidecar in Kubernetes running in Codespaces.
 
+<!--
 We have over 180 attendees registered
 
 - Please turn your video off to save bandwidth
@@ -15,23 +16,7 @@ We have over 180 attendees registered
 - The labs should work in `bash` - for this lab, please use the default `zsh` shell
 - You will have access to the repo after the event and can experiment - we LOVE PRs!
 - Have fun!
-
-## Create a Kubernetes Cluster
-
-- Create the inner-loop Kubernetes dev cluster using k3d
-  - This takes a couple of minutes to run - we will explain the details as we go
-
-   ```bash
-
-   make create
-
-   # you may occasionally get a make error due to the wait for pods
-   # you can safely ignore this error
-
-   # check the pods
-   kubectl get pods
-
-   ```
+-->
 
 ## Learning Objectives
 
@@ -55,6 +40,23 @@ This hands-on lab is open to members of the WW Azure Technical Community. To joi
 
 - `cargo test --target wasm32-unknown-unknown` is currently failing
   - upstream bug in proxy_wasm::*
+
+## Create a Kubernetes Cluster
+
+- Create the inner-loop Kubernetes dev cluster using k3d
+  - This takes a couple of minutes to run - we will explain the details as we go
+
+   ```bash
+
+   make create
+
+   # you may occasionally get a make error due to the wait for pods
+   # you can safely ignore this error
+
+   # check the pods
+   kubectl get pods
+
+   ```
 
 ## Verify the setup
 
