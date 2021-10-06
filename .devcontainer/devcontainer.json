@@ -31,7 +31,8 @@
 		"rust-lang.rust",
 		"vadimcn.vscode-lldb",
 		"humao.rest-client",
-		"serayuzgur.crates"
+		"serayuzgur.crates",
+		"/home/vscode/rad-vscode-bicep.vsix"
 	],
 
 	"waitFor": "postCreateCommand",
