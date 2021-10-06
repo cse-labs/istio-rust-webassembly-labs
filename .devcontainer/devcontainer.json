@@ -34,6 +34,8 @@
 		"serayuzgur.crates"
 	],
 
+	"waitFor": "postCreateCommand",
+
 	// Run Bash scripts
 	"onCreateCommand": "/bin/bash ./.devcontainer/on-create.sh",
 	"postCreateCommand": "/bin/bash ./.devcontainer/post-create.sh"
